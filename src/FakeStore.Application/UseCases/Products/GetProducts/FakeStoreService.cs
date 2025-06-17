@@ -62,12 +62,24 @@ public class FakeStoreService
         // 5. Retornar todos os produtos do banco
         return await _context.Products.ToListAsync();
     }
- 
-    public async Task<PagedResponse<Product>> GetPagedProductsAsync(int pageNumber, int pageSize)
-    {
-        var totalRecords = await _context.Products.CountAsync();
 
-        var data = await _context.Products
+    public async Task<PagedResponse<Product>> GetPagedProductsAsync(int pageNumber, int pageSize, string? name = null, string? barcode = null)
+    {
+        var query = _context.Products.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(p => p.Title.Contains(name));
+        }
+
+        if (!string.IsNullOrWhiteSpace(barcode))
+        {
+            query = query.Where(p => p.Barcode.Contains(barcode));
+        }
+
+        var totalRecords = await query.CountAsync();
+
+        var data = await query
             .OrderBy(p => p.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -81,6 +93,8 @@ public class FakeStoreService
             Data = data
         };
     }
+
+
 
 
 }

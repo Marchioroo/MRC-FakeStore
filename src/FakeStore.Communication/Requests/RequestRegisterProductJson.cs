@@ -15,10 +15,10 @@ public class RequestRegisterProductJson
     public string Description { get; set; } = String.Empty; // Corresponde ao campo 'description' da API
 
     [SwaggerSchema("Categoria do produto")]
-    public string Category { get; set; } = String.Empty; // Corresponde ao campo 'category' da API
+    public string? Category { get; set; } = String.Empty; // Corresponde ao campo 'category' da API
 
     [SwaggerSchema("Barcode, se não for enviado é gerado um aleatório")]
-    public string Barcode { get; set; } = string.Empty;
+    public string? Barcode { get; set; } = string.Empty;
 
     [SwaggerSchema("Envie uma imagem do tipo file")]
     public string Image { get; set; } = String.Empty; // Corresponde ao campo 'image' da API

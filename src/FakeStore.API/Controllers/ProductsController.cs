@@ -15,14 +15,17 @@ public class ProductsController : ControllerBase
     private readonly RegisterProductUseCase _registerProductUseCase;
     private readonly DeleteProductUseCase _deleteProductUseCase;
     private readonly UpdateProductUseCase _updateProductUseCase;
+    private readonly BarcodeGenerator _barcodeGenerator;
 
 
-    public ProductsController(FakeStoreService fakeStoreService, RegisterProductUseCase registerProductUseCase, DeleteProductUseCase deleteProductUseCase, UpdateProductUseCase updateProductUseCase)
+
+    public ProductsController(FakeStoreService fakeStoreService, RegisterProductUseCase registerProductUseCase, BarcodeGenerator barcodeGenerator, DeleteProductUseCase deleteProductUseCase, UpdateProductUseCase updateProductUseCase)
     {
         _fakeStoreService = fakeStoreService;
         _registerProductUseCase = registerProductUseCase;
         _deleteProductUseCase = deleteProductUseCase;
         _updateProductUseCase = updateProductUseCase;
+        _barcodeGenerator = barcodeGenerator;
     }
 
     [HttpPost("sync")]
@@ -35,9 +38,13 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     [SwaggerOperation(Summary = "Traz todos os produtos do banco de dados!")]
-    public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetProducts(
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? name = null,
+    [FromQuery] string? barcode = null)
     {
-        var response = await _fakeStoreService.GetPagedProductsAsync(pageNumber, pageSize);
+        var response = await _fakeStoreService.GetPagedProductsAsync(pageNumber, pageSize, name, barcode);
         return Ok(response);
     }
 
@@ -64,7 +71,9 @@ public class ProductsController : ControllerBase
             Price = request.Price,
             Description = request.Description,
             Category = request.Category ?? "Sem categoria",
-            Image = string.Empty 
+            Barcode = request.Barcode ?? _barcodeGenerator.Generate(),
+
+            Image = string.Empty
         };
 
         var response = await _registerProductUseCase.ExecuteAsync(requestProduct, imageBytes);

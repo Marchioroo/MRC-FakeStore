@@ -18,8 +18,6 @@ public class RegisterProductValidator : AbstractValidator<RequestRegisterProduct
             .NotEmpty().WithMessage(ResourceErrorMessages.DESCRICAO_NECESSARIA)
             .MinimumLength(5).WithMessage(ResourceErrorMessages.DESCRICAO_PEQUENA)
             .MaximumLength(500).WithMessage(ResourceErrorMessages.DESCRICAO_GRANDE);
-        RuleFor(x => x.Category)
-            .NotEmpty().WithMessage(ResourceErrorMessages.CATEGORIA_NECESSAIRA)
-            .MaximumLength(50).WithMessage(ResourceErrorMessages.CATEGORIA_PEQUENA).When(x => x.Category != null);
+
     }
 }

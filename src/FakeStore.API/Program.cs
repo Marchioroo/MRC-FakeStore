@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.OpenApi.Models;
 using DotNetEnv;
+using Microsoft.Extensions.Azure;
 
 // Carregar variáveis de ambiente do .env (ignorar erro se não existir)
 try
@@ -22,6 +23,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration["ConnectionStrings:DefaultConnection"] = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
 builder.Configuration["ConnectionStrings:AzureBlobStorage"] = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE");
+
+// Configuração do CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost3000", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")  // Libera o Nuxt (local)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Configuração dos serviços
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -44,6 +56,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnection:blobServiceUri"]!).WithName("StorageConnection");
+    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnection:queueServiceUri"]!).WithName("StorageConnection");
+    clientBuilder.AddTableServiceClient(builder.Configuration["StorageConnection:tableServiceUri"]!).WithName("StorageConnection");
+});
 
 var app = builder.Build();
 
@@ -58,7 +76,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// Ativando o CORS antes dos controllers
+app.UseCors("AllowLocalhost3000");
+
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
