@@ -1,4 +1,4 @@
-📡 FakeStore API - Backend (.NET 8 + DDD + SOLID)
+📡 FakeStore API - Backend (.NET 9 + DDD + SOLID)
 Descrição
 Este é o backend da aplicação FakeStore CRUD, desenvolvido em .NET 9 Web API, com arquitetura DDD (Domain-Driven Design) e aplicação de princípios SOLID.
 
